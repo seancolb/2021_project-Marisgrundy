@@ -1,100 +1,182 @@
 ---
-title: "My Final Project Template"
-author: Your name here
-subtitle: Subtitle here if desired
+title: "Ecological Justice Seen Through a Wetland Lens in Erie County"
+author: Maris Grundy
+subtitle: Relationship between wetland proximity and median annual income in Erie County, NY
+output: html_document
 ---
 
 # Introduction
 
-[~ 200 words]
+The importance of intact ecosystems to human society can be understood through the lens of ecosystem services.  Ecosystem services include direct and indirect resources and processes that support life on Earth (Wratten et al. 2013).  Changes to ecosystems disrupt the ability to provide ecosystem services (Carpernter et al. 2006).  Urbanization is one of the largest drivers of ecosystem degradation due to land use change and habitat fragmentation from agriculture, housing, and infrastructure development (McCauley et al. 2013). The impacts of ecosystem loss from urbanization are not reflected equally within society.  Instead, these losses reflect larger societal inequalities present in cities (Schell et al. 2020).  Historical urban development practices rooted in structural racism and classism have led to current inequality of proximity green spaces in cities, with wealthier and whiter neighborhoods containing more trees, green space and biodiversity (Schell et al. 2020).  
 
-Clearly stated background and questions / hypotheses / problems being addressed. Sets up the analysis in an interesting and compelling way.
+Buffalo, New York provides an example of an urban area that exhibits wealth inequality, with disproportionate negative impacts of environmental degradation  being carried by lower income households (Krieg 2005).  Buffalo is within Erie County, known for its location on the Great Lakes and surrounding freshwater watershed.  
+
+To see if wetland proximity follow the same pattern of connection with income disparity, this project will look at spatial distribution of intact wetlands in Erie County as it relates to median household income.  I hypothesize that mean annual income will have an inverse relationship with geographic closeness to wetlands.
+
 
 # Materials and methods
 
-[~ 200 words]
+This project aims to uncover the relationship between median household income and proximity to wetlands in Erie County.  To carry out this query, I used two data sources:
 
-Narrative: Clear narrative description of the data sources and methods. Includes data from at least two sources that were integrated / merged in R.
+1. [Census Data](https://data.census.gov/cedsci/)
 
-Code: The code associated with the project is well organized and easy to follow. Demonstrates mastery of R graphics and functions.
+First I got a Census key, which allows me to download data from the census website onto r.
 
-Data: The underlying data are publicly accessible via the web and downloaded/accessed within the Rmd script. If you want to use your own data, you must make it available on a website (e.g. Figshare) so that others are able to re-run your code.
-
-You can do bullets like this:
-
-* The first most important thing
-* The second most important thing
-* The third most important thing
-
-You can do numbers like this:
-
-1. The first most important thing
-2. The second most important thing
-3. The third most important thing
-
-See [http://rmarkdown.rstudio.com/](http://rmarkdown.rstudio.com/) for all the amazing things you can do.
+Next, I wrote code to gather data from the US Census website.  Specifically, I was interested in getting the median household income in 2019 for homes at the tract level in Erie County, NY.  I used data from the American Community Survey 1-year.
 
 
-Here's my first code chunk.
-```{r}
-1+2
-```
+2. [National Wetlands Inventory](https://www.fws.gov/wetlands/data/Mapper.html)
 
-Load any required packages in a code chunk (you may need to install some packages):
+For the wetland data I used the above link to search for the watersheds that cover Erie County.  This search returned two watersheds: the Buffalo Eighteenmile watershed (HUC 04120103) and the Niagara watershed (HUC 04120104).  These data were downloaded as shapefiles.  To work with them, these shapefiles were merged, then converted to raster in r.
 
-```{r, message=F, warning=F}
+
+After getting both datasets into raster form and prepping the basemap, I made a raster sandwich! I created an overlay of median income data and wetland data.  These datasets share geospatial information, so the overlay was possible.
+
+
+Here's the magical r code I created:
+
+## Load Packages
+
+```{r, message=F, warning=F, include=FALSE, echo=TRUE}
+library(spData)
+library(sf)
+library(units)
+library(ggplot2)
+library(viridis)
+library(broom)
+library(dplyr)
+library(tidycensus)
+library(choroplethr)
+library(choroplethrMaps)
+library(raster)
+library(rasterVis)
 library(tidyverse)
-library(leaflet)
-library(kableExtra)
-knitr::opts_chunk$set(cache=TRUE)  # cache the results for quick compiling
+library(ggpmisc)
+library(lwgeom)
+knitr::opts_chunk$set(cache=TRUE)  
 ```
 
 ## Download and clean all required data
-```{r}
-n=20
-data=data.frame(x=runif(n,-180,180),
-                y=runif(n,-60,60),
-                size = runif(n, 5, 20),
-                category = factor(
-                  sample(letters[1:5], n, replace = TRUE)
-                  ),
-                value = rnorm(n))
+```{r, message=FALSE, warning=FALSE}
+#load population data
+#first you need a Census key
+
+census_api_key("d7a2cd0f27c540f5b9cef151c8472838c33d797f", overwrite= TRUE, install= TRUE)
+
+#identify variables for consideration
+v1 <- load_variables(2019, "acs1", cache=TRUE)
+#View(v1)
+
+# crop to domain (Erie County, tract level)
+census_data<- get_acs(geography="tract",
+              variables= "B07011_001",
+              year=2019,
+              state="NY",
+              county = "Erie",
+              geometry= TRUE)
+
+
+# define census region using a spatial bounding box and rasterize data
+bbox<-st_bbox(census_data)
+domain <- raster(resolution=0.008,crs=projection(census_data),
+                 xmn=bbox$xmin,xmx=bbox$xmax,ymn=bbox$ymin,ymx=bbox$ymax)
+
+
+#load watershed data and bind watersheds of interest into one raster
+require(sf)
+wetlands <- bind_rows(
+  read_sf(dsn = "Data/HU8_04120103_Watershed_erie/HU8_04120103_Wetlands.shp"),
+  read_sf(dsn = "Data/HU8_04120104_Watershed_niagara/HU8_04120104_Wetlands.shp")
+)%>%
+  st_transform(projection(census_data))
+
+
+wetlands_raster=rasterize(as(wetlands,"Spatial"),domain,field=1)
+wetlands_distance=distance(wetlands_raster)
+
+#Here is a map of Erie County broken into census tracts
+ggplot(census_data)+
+  geom_sf()
+
+#Here are how the wetlands are distributed in Erie County
+plot(wetlands_raster, main= 'Wetlands in Erie County', xlab='Longitude', ylab='Latitude')
+plot(wetlands_distance, main='Proximity to wetlands in Erie County', xlab='Longitude', ylab='Latitude',asp=1)
+
+#Here's a histogram of the distribution of wetlands in Erie County by Distance
+#This shows us how frequently a specific distance to any wetland occurs
+dist_wetland <- hist(wetlands_distance, breaks=10, main='Distribution of Wetlands by Distance', xlab='Distance in Meters', col="chartreuse4")
+dist_wetland$counts
+
+#Now, breaking apart wetland vector by census tract
+sf::sf_use_s2(FALSE)
+wetlands_intersected<-wetlands %>% 
+  st_intersection(census_data)%>%
+  group_by(GEOID)%>%
+  summarize(wetland_area=sum(st_area(geometry)),wetland_count=n())%>%
+  st_set_geometry(NULL)
+
+#Select only GEOID, wetland_area, wetland_count
+dplyr::select(wetlands_intersected, "GEOID", "wetland_area", "wetland_count")
+  
+#left_join wetlands intersected with census data(L) by GEOID
+major_table<- left_join(census_data, wetlands_intersected)
+
+#compare column titles I care about
+plot1<-ggplot(major_table, aes(estimate, as.numeric(wetland_area)))+
+  geom_point(colour='green4')+
+  geom_smooth()
+
+plot1 + labs("Median Income vs Wetland Area",
+  x="Median Income", y="Wetland Area")
+
+#mean distance with income
+census_data$meandist<- raster::extract(wetlands_distance, census_data, fun=mean)
+
+plot2<- ggplot(census_data, aes(fill= meandist))+
+  geom_sf()
+plot2
+
+
+#median distance with income
+census_data$mediandist<- raster::extract(wetlands_distance, census_data, fun=median)
+
+plot3<- ggplot(census_data, aes(fill= mediandist))+
+  geom_sf()
+plot3
 ```
 
-```{r, results='asis'}
-data %>% 
-  slice(1:10) %>% #show only 1:n rows
-  kable(digits=2,align="c")%>% #make table and round to two digits
-  kable_styling(bootstrap_options = 
-                  c("striped", "hover", "condensed", "responsive")) #apply other formatting
+Here's where I could use some help!
+```{r, warning=FALSE, message=FALSE, eval=FALSE}
+#The final figure I would like to create isn't working, but I am attempting to create
+#a choropleth map filled with mean distance to wetland overlaid with a bubble map showing 
+#estimated income in census tract.  If you have suggestions please help!  This is attempt
+#one million.
+census_data %>%
+  ggplot() +
+  geom_sf(aes(geometry=geometry), fill='#d5d5d2', colour=NA) +
+  geom_point(aes(x=longitude, y=latitude, size=estimate, color=estimate, alpha=estimate),
+             shape=20, stroke=FALSE) +
+  scale_color_viridis(option="magma", trans="log",
+                      name='Income ($)') +
+  theme_void() + coord_sf()
 ```
 
 Add any additional processing steps here.
 
 # Results
 
-[~200 words]
+There is evidence of a relationship between mean income within a census tract, and proximity to a wetland.
 
-Tables and figures (maps and other graphics) are carefully planned to convey the results of your analysis. Intense exploration and evidence of many trials and failures. The author looked at the data in many different ways before coming to the final presentation of the data.
-
-Show tables, plots, etc. and describe them.
-
-```{r, fig.width=6, fig.height=3, fig.cap="Map of completely random data"}
-m <- leaflet(data) %>% 
-  addTiles() %>% 
-  addCircleMarkers(~x, ~y, radius = ~size,color = ~as.factor(category)) %>% 
-  addPopups(~x[2], ~y[2], "Random popup")
-m  # a map with the default OSM tile layer
-```
+I will add more here.
 
 
 ```{r}
-data %>% 
-  ggplot(aes(x=x,y=y,col=category))+
-  geom_point()
+
 ```
 
 # Conclusions
+
+Will add more here, also.
 
 [~200 words]
 
@@ -102,4 +184,13 @@ Clear summary adequately describing the results and putting them in context. Dis
 
 # References
 
-All sources are cited in a consistent manner
+Carpenter, S. R., E. M. Bennett, and G. D. Peterson. 2006. Scenarios for Ecosystem Services: An Overview. Ecology and Society 11.
+
+Krieg, E. J. 2005. Race and Environmental Justice in Buffalo, NY: A ZIP Code and Historical Analysis of Ecological Hazards. Society & Natural Resources 18:199–213.
+
+Schell, C. J., K. Dyson, T. L. Fuentes, S. Des Roches, N. C. Harris, D. S. Miller, C. A. Woelfle-Erskine, and M. R. Lambert. 2020. The ecological and evolutionary consequences of systemic racism in urban environments. Science 369:eaay4497.
+
+U.S. Census Bureau QuickFacts: United States. (n.d.). . https://www.census.gov/quickfacts/fact/table/US#.
+
+Wratten, S., H. Sandhu, R. Cullen, and R. Costanza, editors. 2013. Ecosystem Services in Agricultural and Urban Landscapes. First edition. Wiley.
+
