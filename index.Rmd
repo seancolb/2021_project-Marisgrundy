@@ -93,20 +93,33 @@ wetlands <- bind_rows(
 
 wetlands_raster=rasterize(as(wetlands,"Spatial"),domain,field=1)
 wetlands_distance=distance(wetlands_raster)
+```
 
-#Here is a map of Erie County broken into census tracts
+Here is a figure showing Erie County broken into Census tracts
+```{r, message=FALSE, error=FALSE, warning=FALSE}
 ggplot(census_data)+
   geom_sf()
+```
 
+
+The following displays how wetlands are distributed in Erie County
+
+```{r, message=FALSE, error=FALSE, warning=FALSE}
 #Here are how the wetlands are distributed in Erie County
 plot(wetlands_raster, main= 'Wetlands in Erie County', xlab='Longitude', ylab='Latitude')
 plot(wetlands_distance, main='Proximity to wetlands in Erie County', xlab='Longitude', ylab='Latitude',asp=1)
+```
 
-#Here's a histogram of the distribution of wetlands in Erie County by Distance
-#This shows us how frequently a specific distance to any wetland occurs
+# Results
+##Here's a histogram of the distribution of wetlands in Erie County by Distance
+This shows us how frequently a specific distance to any wetland occurs
+```{r, message=FALSE, error=FALSE}
 dist_wetland <- hist(wetlands_distance, breaks=10, main='Distribution of Wetlands by Distance', xlab='Distance in Meters', col="chartreuse4")
 dist_wetland$counts
+```
 
+Wetland raster deliniated by census tract
+```{r, message=FALSE, error=FALSE, warning=FALSE}
 #Now, breaking apart wetland vector by census tract
 sf::sf_use_s2(FALSE)
 wetlands_intersected<-wetlands %>% 
@@ -146,7 +159,7 @@ plot3
 ```
 
 Here's where I could use some help!
-```{r, warning=FALSE, message=FALSE, eval=FALSE}
+```{r, warning=FALSE, message=FALSE, eval=FALSE, warning=FALSE}
 #The final figure I would like to create isn't working, but I am attempting to create
 #a choropleth map filled with mean distance to wetland overlaid with a bubble map showing 
 #estimated income in census tract.  If you have suggestions please help!  This is attempt
@@ -161,13 +174,6 @@ census_data %>%
   theme_void() + coord_sf()
 ```
 
-Add any additional processing steps here.
-
-# Results
-
-There is evidence of a relationship between mean income within a census tract, and proximity to a wetland.
-
-I will add more here.
 
 
 ```{r}
@@ -176,11 +182,14 @@ I will add more here.
 
 # Conclusions
 
-Will add more here, also.
+There is evidence of a relationship between mean income and proximity to a wetland within census tracts in Erie County.  In the maps displaying wetland distribution and proximity to wetlands, close proximity excludes the downtown core in the City of Buffalo.  The choropleth/bubble map displaying wetland count and median income also shows an inverse relationship between these variables.
 
-[~200 words]
+As shown in the figure comparing median income with wetland area, wetland area increases with median income until approximately $58,000, after which it begins to decrease. 
 
-Clear summary adequately describing the results and putting them in context. Discussion of further questions and ways to continue investigation.
+While these findings did not suggest a strong relationship between variables considered, they support the spatial discrepancy between impoverished communities in Erie County and proximity to wetlands.  People living in poverty within the city limits have a greater distance to travel to access a wetland.  Persons living in poverty in the City of Buffalo include 30% of residents,  which is higher than the national average of 11.4% (“U.S. Census Bureau QuickFacts” n.d.).
+
+
+
 
 # References
 
@@ -190,7 +199,11 @@ Krieg, E. J. 2005. Race and Environmental Justice in Buffalo, NY: A ZIP Code and
 
 Schell, C. J., K. Dyson, T. L. Fuentes, S. Des Roches, N. C. Harris, D. S. Miller, C. A. Woelfle-Erskine, and M. R. Lambert. 2020. The ecological and evolutionary consequences of systemic racism in urban environments. Science 369:eaay4497.
 
+U.S. Census Bureau QuickFacts: Buffalo city, New York. (n.d.). . https://www.census.gov/quickfacts/buffalocitynewyork.
+
 U.S. Census Bureau QuickFacts: United States. (n.d.). . https://www.census.gov/quickfacts/fact/table/US#.
+
+Wetlands Mapper. (n.d.). . https://www.fws.gov/wetlands/data/mapper.html.
 
 Wratten, S., H. Sandhu, R. Cullen, and R. Costanza, editors. 2013. Ecosystem Services in Agricultural and Urban Landscapes. First edition. Wiley.
 
