@@ -37,7 +37,7 @@ Here's the magical r code I created:
 
 ## Load Packages
 
-```{r, message=F, warning=F, include=FALSE, echo=TRUE}
+```{r, message=F, warning=F}
 library(spData)
 library(sf)
 library(units)
@@ -57,7 +57,7 @@ knitr::opts_chunk$set(cache=TRUE)
 ```
 
 ## Download and clean all required data
-```{r, message=FALSE, warning=FALSE}
+```{r, message=FALSE, warning=FALSE, results='hide'}
 #load population data
 #first you need a Census key
 
@@ -164,14 +164,20 @@ Here's where I could use some help!
 #a choropleth map filled with mean distance to wetland overlaid with a bubble map showing 
 #estimated income in census tract.  If you have suggestions please help!  This is attempt
 #one million.
-census_data %>%
-  ggplot() +
+
+
+census_data$meandist<- raster::extract(wetlands_distance, census_data, fun=mean)
+
+plot4<- ggplot(census_data, aes(fill= meandist))+
+  geom_sf()+
   geom_sf(aes(geometry=geometry), fill='#d5d5d2', colour=NA) +
   geom_point(aes(x=longitude, y=latitude, size=estimate, color=estimate, alpha=estimate),
              shape=20, stroke=FALSE) +
   scale_color_viridis(option="magma", trans="log",
                       name='Income ($)') +
   theme_void() + coord_sf()
+
+view(plot4)
 ```
 
 
@@ -182,11 +188,11 @@ census_data %>%
 
 # Conclusions
 
-There is evidence of a relationship between mean income and proximity to a wetland within census tracts in Erie County.  In the maps displaying wetland distribution and proximity to wetlands, close proximity excludes the downtown core in the City of Buffalo.  The choropleth/bubble map displaying wetland count and median income also shows an inverse relationship between these variables.
+There is evidence of a relationship between mean income and proximity to a wetland within census tracts in Erie County. The choropleth/bubble map displaying wetland count and median income shows an inverse relationship between these variables.
 
-As shown in the figure comparing median income with wetland area, wetland area increases with median income until approximately $58,000, after which it begins to decrease. 
+As shown in the figure comparing median income with wetland area, wetland area increases with median income until approximately $58,000, after which it begins to decrease.   
 
-While these findings did not suggest a strong relationship between variables considered, they support the spatial discrepancy between impoverished communities in Erie County and proximity to wetlands.  People living in poverty within the city limits have a greater distance to travel to access a wetland.  Persons living in poverty in the City of Buffalo include 30% of residents,  which is higher than the national average of 11.4% (“U.S. Census Bureau QuickFacts” n.d.).
+While these findings did not suggest a strong relationship between variables considered, they support the spatial discrepancy between impoverished communities in Erie County and proximity to wetlands.  In the maps displaying wetland distribution and proximity to wetlands, close proximity excludes the downtown core in the City of Buffalo. People living in poverty within the city limits have a greater distance to travel to access a wetland.  Persons living in poverty in the City of Buffalo include 30% of residents,  which is higher than the national average of 11.4% (“U.S. Census Bureau QuickFacts” n.d.).
 
 
 
