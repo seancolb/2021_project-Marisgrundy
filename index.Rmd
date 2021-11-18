@@ -61,7 +61,9 @@ knitr::opts_chunk$set(cache=TRUE)
 #load population data
 #first you need a Census key
 
-census_api_key("d7a2cd0f27c540f5b9cef151c8472838c33d797f", overwrite= TRUE, install= TRUE)
+#census_api_key("d7a2cd0f27c540f5b9cef151c8472838c33d797f", overwrite= TRUE, install= TRUE)
+
+census_api_key(Sys.getenv("CENSUS_API_KEY"))
 
 #identify variables for consideration
 v1 <- load_variables(2019, "acs1", cache=TRUE)
@@ -167,23 +169,34 @@ Here's where I could use some help!
 
 
 census_data$meandist<- raster::extract(wetlands_distance, census_data, fun=mean)
+census_data_point <- census_data %>% st_centroid()
 
-plot4<- ggplot(census_data, aes(fill= meandist))+
-  geom_sf()+
-  geom_sf(aes(geometry=geometry), fill='#d5d5d2', colour=NA) +
-  geom_point(aes(x=longitude, y=latitude, size=estimate, color=estimate, alpha=estimate),
-             shape=20, stroke=FALSE) +
-  scale_color_viridis(option="magma", trans="log",
-                      name='Income ($)') +
+plot4<- ggplot() +
+  geom_sf(data = census_data, aes(fill = meandist)) +
+  geom_sf(data = census_data_point, aes(size = estimate, color = estimate)) +
+  scale_fill_continuous(type = "viridis") +
+#  scale_color_viridis(option="magma", trans="log",
+   #                   name='Income ($)')  + 
   theme_void() + coord_sf()
 
-view(plot4)
-```
+plot4  
+  
+ggplot(data = census_data) +
+  geom_sf(aes(fill = estimate))
+
+library(tmap)
+tmap_mode("view")
+
+tm_shape(census_data) +
+  tm_polygons(col = "estimate")
 
 
 
-```{r}
 
+
+mapview::mapview(census_data, zcol = "estimate")
+
+plot4
 ```
 
 # Conclusions
