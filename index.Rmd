@@ -125,6 +125,7 @@ Wetland raster deliniated by census tract
 #Now, breaking apart wetland vector by census tract
 sf::sf_use_s2(FALSE)
 wetlands_intersected<-wetlands %>% 
+  st_buffer(0)%>%
   st_intersection(census_data)%>%
   group_by(GEOID)%>%
   summarize(wetland_area=sum(st_area(geometry)),wetland_count=n())%>%
