@@ -62,10 +62,7 @@ knitr::opts_chunk$set(cache=TRUE)
 #first you need a Census key
 
 #census_api_key("d7a2cd0f27c540f5b9cef151c8472838c33d797f", overwrite= TRUE, install= TRUE)
-<<<<<<< HEAD
 
-=======
->>>>>>> 25938a50f92df2725c2198db5c4790ca6b6a014d
 census_api_key(Sys.getenv("CENSUS_API_KEY"))
 
 #identify variables for consideration
