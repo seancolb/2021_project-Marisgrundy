@@ -1,5 +1,5 @@
 ---
-title: "Ecological Justice Seen Through a Wetland Lens in Erie County"
+title: "Ecological Justice as Seen Through a Wetland Lens in Erie County"
 author: Maris Grundy
 subtitle: Relationship between wetland proximity and median annual income in Erie County, NY
 output: html_document

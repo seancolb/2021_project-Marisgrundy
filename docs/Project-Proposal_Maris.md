@@ -12,7 +12,10 @@ ecosystem loss to urbanization are not reflected equally within society.
 Instead, these losses reflect larger societal inequalities present in
 cities (Schell et al. 2020). This project will look at spatial
 distribution of instact wetlands in Erie County as it relates to mean
-household income.
+household income. Although Erie County is seated on the Great Lakes,
+with abundant freshwater wetland habitat, it also has a poverty rate of
+13.3% which is higher than the national average of 11.4% (“U.S. Census
+Bureau QuickFacts” n.d.). This v
 
 ### Hypothesis
 
