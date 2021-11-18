@@ -61,7 +61,8 @@ knitr::opts_chunk$set(cache=TRUE)
 #load population data
 #first you need a Census key
 
-census_api_key("d7a2cd0f27c540f5b9cef151c8472838c33d797f", overwrite= TRUE, install= TRUE)
+#census_api_key("d7a2cd0f27c540f5b9cef151c8472838c33d797f", overwrite= TRUE, install= TRUE)
+census_api_key(Sys.getenv("CENSUS_API_KEY"))
 
 #identify variables for consideration
 v1 <- load_variables(2019, "acs1", cache=TRUE)
