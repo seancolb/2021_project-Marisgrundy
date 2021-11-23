@@ -44,7 +44,6 @@ library(units)
 library(ggplot2)
 library(viridis)
 library(broom)
-library(dplyr)
 library(tidycensus)
 library(choroplethr)
 library(choroplethrMaps)
@@ -53,6 +52,8 @@ library(rasterVis)
 library(tidyverse)
 library(ggpmisc)
 library(lwgeom)
+library(dplyr)
+
 knitr::opts_chunk$set(cache=TRUE)  
 ```
 
@@ -102,6 +103,10 @@ Here is a figure showing Erie County broken into Census tracts
 ggplot(census_data)+
   geom_sf()
 ```
+The median income for each census tract is shown below:
+```{r, warning=FALSE, message=FALSE}
+mapview::mapview(census_data, zcol = "estimate")
+```
 
 
 The following displays how wetlands are distributed in Erie County
@@ -125,7 +130,7 @@ Wetland raster deliniated by census tract
 #Now, breaking apart wetland vector by census tract
 sf::sf_use_s2(FALSE)
 wetlands_intersected<-wetlands %>% 
-  st_buffer(0)%>%
+  st_buffer(0) %>%
   st_intersection(census_data)%>%
   group_by(GEOID)%>%
   summarize(wetland_area=sum(st_area(geometry)),wetland_count=n())%>%
@@ -161,44 +166,6 @@ plot3<- ggplot(census_data, aes(fill= mediandist))+
 plot3
 ```
 
-Here's where I could use some help!
-```{r, warning=FALSE, message=FALSE, eval=FALSE, warning=FALSE}
-#The final figure I would like to create isn't working, but I am attempting to create
-#a choropleth map filled with mean distance to wetland overlaid with a bubble map showing 
-#estimated income in census tract.  If you have suggestions please help!  This is attempt
-#one million.
-
-
-census_data$meandist<- raster::extract(wetlands_distance, census_data, fun=mean)
-census_data_point <- census_data %>% st_centroid()
-
-plot4<- ggplot() +
-  geom_sf(data = census_data, aes(fill = meandist)) +
-  geom_sf(data = census_data_point, aes(size = estimate, color = estimate)) +
-  scale_fill_continuous(type = "viridis") +
-#  scale_color_viridis(option="magma", trans="log",
-   #                   name='Income ($)')  + 
-  theme_void() + coord_sf()
-
-plot4  
-  
-ggplot(data = census_data) +
-  geom_sf(aes(fill = estimate))
-
-library(tmap)
-tmap_mode("view")
-
-tm_shape(census_data) +
-  tm_polygons(col = "estimate")
-
-
-
-
-
-mapview::mapview(census_data, zcol = "estimate")
-
-plot4
-```
 
 # Conclusions
 
