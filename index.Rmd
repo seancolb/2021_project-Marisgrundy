@@ -104,7 +104,7 @@ ggplot(census_data)+
   geom_sf()
 ```
 The median income for each census tract is shown below:
-```{r, warning=FALSE, message=FALSE}
+```{r, warning=FALSE, message=FALSE, as.is=TRUE}
 mapview::mapview(census_data, zcol = "estimate")
 ```
 
