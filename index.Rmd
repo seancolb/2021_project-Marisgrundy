@@ -7,11 +7,13 @@ output: html_document
 
 # Introduction
 
-The importance of intact ecosystems to human society can be understood through the lens of ecosystem services.  Ecosystem services include direct and indirect resources and processes that support life on Earth (Wratten et al. 2013).  Changes to ecosystems disrupt the ability to provide ecosystem services (Carpernter et al. 2006).  Urbanization is one of the largest drivers of ecosystem degradation due to land use change and habitat fragmentation from agriculture, housing, and infrastructure development (McCauley et al. 2013). The impacts of ecosystem loss from urbanization are not reflected equally within society.  Instead, these losses reflect larger societal inequalities present in cities (Schell et al. 2020).  Historical urban development practices rooted in structural racism and classism have led to current inequality of proximity green spaces in cities, with wealthier and whiter neighborhoods containing more trees, green space and biodiversity (Schell et al. 2020).  
+The importance of intact ecosystems to human society can be understood through the lens of ecosystem services.  Ecosystem services include direct and indirect resources and processes that support life on Earth (Wratten et al. 2013).  Changes to ecosystems disrupts their ability to provide ecosystem services (Carpernter et al. 2006).  Urbanization is one of the largest drivers of ecosystem degradation due to land use change and habitat fragmentation from agriculture, housing, and infrastructure development (McCauley et al. 2013). The impacts of ecosystem loss from urbanization are not reflected equally within society.  Instead, these losses reflect larger societal inequalities present in cities (Schell et al. 2020).  Historical urban development practices rooted in structural racism and classism have led to current inequality of proximity to green spaces in cities, with wealthier and whiter neighborhoods containing more trees, green space and biodiversity (Schell et al. 2020).  
 
 Buffalo, New York provides an example of an urban area that exhibits wealth inequality, with disproportionate negative impacts of environmental degradation  being carried by lower income households (Krieg 2005).  Buffalo is within Erie County, known for its location on the Great Lakes and surrounding freshwater watershed.  
 
-To see if wetland proximity follow the same pattern of connection with income disparity, this project will look at spatial distribution of intact wetlands in Erie County as it relates to median household income.  I hypothesize that mean annual income will have an inverse relationship with geographic closeness to wetlands.
+To see if wetland proximity follow the same pattern of connection with income disparity, this project will look at the spatial distribution of intact wetlands in Erie County as it relates to median household income.  
+
+I hypothesize that mean annual income will have an inverse relationship with geographic closeness to wetlands.
 
 
 # Materials and methods
@@ -30,7 +32,7 @@ Next, I wrote code to gather data from the US Census website.  Specifically, I w
 For the wetland data I used the above link to search for the watersheds that cover Erie County.  This search returned two watersheds: the Buffalo Eighteenmile watershed (HUC 04120103) and the Niagara watershed (HUC 04120104).  These data were downloaded as shapefiles.  To work with them, these shapefiles were merged, then converted to raster in r.
 
 
-After getting both datasets into raster form and prepping the basemap, I made a raster sandwich! I created an overlay of median income data and wetland data.  These datasets share geospatial information, so the overlay was possible.
+After getting both datasets into raster form, I made a raster sandwich! I created an overlay of median income data and wetland data.  These datasets share geospatial information, so the overlay was possible.
 
 
 Here's the magical r code I created:
@@ -99,11 +101,13 @@ wetlands_distance=distance(wetlands_raster)
 ```
 
 Here is a figure showing Erie County broken into Census tracts
+
 ```{r, message=FALSE, error=FALSE, warning=FALSE}
 ggplot(census_data)+
   geom_sf()
 ```
-The median income for each census tract is shown below:
+The median income for each census tract is shown below
+
 ```{r, warning=FALSE, message=FALSE, as.is=TRUE}
 mapview::mapview(census_data, zcol = "estimate")
 ```
@@ -119,6 +123,7 @@ plot(wetlands_distance, main='Proximity to wetlands in Erie County', xlab='Longi
 
 # Results
 ##Here's a histogram of the distribution of wetlands in Erie County by Distance
+
 This shows us how frequently a specific distance to any wetland occurs
 ```{r, message=FALSE, error=FALSE}
 dist_wetland <- hist(wetlands_distance, breaks=10, main='Distribution of Wetlands by Distance', xlab='Distance in Meters', col="chartreuse4")
@@ -126,6 +131,7 @@ dist_wetland$counts
 ```
 
 Wetland raster deliniated by census tract
+
 ```{r, message=FALSE, error=FALSE, warning=FALSE}
 #Now, breaking apart wetland vector by census tract
 sf::sf_use_s2(FALSE)
@@ -169,11 +175,11 @@ plot3
 
 # Conclusions
 
-There is evidence of a relationship between mean income and proximity to a wetland within census tracts in Erie County. The choropleth/bubble map displaying wetland count and median income shows an inverse relationship between these variables.
+There is evidence of a relationship between mean income and proximity to a wetland within census tracts in Erie County.
 
 As shown in the figure comparing median income with wetland area, wetland area increases with median income until approximately $58,000, after which it begins to decrease.   
 
-While these findings did not suggest a strong relationship between variables considered, they support the spatial discrepancy between impoverished communities in Erie County and proximity to wetlands.  In the maps displaying wetland distribution and proximity to wetlands, close proximity excludes the downtown core in the City of Buffalo. People living in poverty within the city limits have a greater distance to travel to access a wetland.  Persons living in poverty in the City of Buffalo include 30% of residents,  which is higher than the national average of 11.4% (“U.S. Census Bureau QuickFacts” n.d.).
+While these findings did not suggest a strong relationship between variables considered, they support the spatial discrepancy between lower income communities in Erie County and proximity to wetlands.  In the maps displaying wetland distribution and proximity to wetlands, close proximity excludes the downtown core in the City of Buffalo. People living in poverty within the city limits have a greater distance to travel to access a wetland.  Persons living in poverty in the City of Buffalo include 30% of residents,  which is higher than the national average of 11.4% (“U.S. Census Bureau QuickFacts” n.d.).
 
 
 
