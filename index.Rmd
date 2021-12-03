@@ -9,7 +9,7 @@ output: html_document
 
 The importance of intact ecosystems to human society can be understood through the lens of ecosystem services.  Ecosystem services include direct and indirect resources and processes that support life on Earth (Wratten et al. 2013).  Changes to ecosystems disrupts their ability to provide ecosystem services (Carpernter et al. 2006).  Urbanization is one of the largest drivers of ecosystem degradation due to land use change and habitat fragmentation from agriculture, housing, and infrastructure development (McCauley et al. 2013). The impacts of ecosystem loss from urbanization are not reflected equally within society.  Instead, these losses reflect larger societal inequalities present in cities (Schell et al. 2020).  Historical urban development practices rooted in structural racism and classism have led to current inequality of proximity to green spaces in cities, with wealthier and whiter neighborhoods containing more trees, green space and biodiversity (Schell et al. 2020).  
 
-Buffalo, New York provides an example of an urban area that exhibits wealth inequality, with disproportionate negative impacts of environmental degradation  being carried by lower income households (Krieg 2005).  Buffalo is within Erie County, known for its location on the Great Lakes and surrounding freshwater watershed.  
+Buffalo, New York provides an example of an urban area that exhibits wealth inequality, with disproportionate negative impacts of environmental degradation  being carried by lower income households (Krieg 2005).  Buffalo is within Erie County, known for its location on the Great Lakes and surrounding freshwater watershed.   
 
 To see if wetland proximity follow the same pattern of connection with income disparity, this project will look at the spatial distribution of intact wetlands in Erie County as it relates to median household income.  
 
@@ -17,7 +17,7 @@ I hypothesize that mean annual income will have an inverse relationship with geo
 
 
 # Materials and methods
-
+ 
 This project aims to uncover the relationship between median household income and proximity to wetlands in Erie County.  To carry out this query, I used two data sources:
 
 1. [Census Data](https://data.census.gov/cedsci/)
@@ -154,26 +154,26 @@ plot1<-ggplot(major_table, aes(estimate, as.numeric(wetland_area)))+
   geom_smooth()
 
 plot1 + labs("Median Income vs Wetland Area",
-  x="Median Income", y="Wetland Area")
+  x="Median Income", y="Wetland Area") 
 
-#mean distance with income
+#mean distance with income 
 census_data$meandist<- raster::extract(wetlands_distance, census_data, fun=mean)
 
 plot2<- ggplot(census_data, aes(fill= meandist))+
   geom_sf()
 plot2
 
-
+ 
 #median distance with income
 census_data$mediandist<- raster::extract(wetlands_distance, census_data, fun=median)
-
+ 
 plot3<- ggplot(census_data, aes(fill= mediandist))+
   geom_sf()
 plot3
 ```
 
 
-# Conclusions
+# Conclusions 
 
 There is evidence of a relationship between mean income and proximity to a wetland within census tracts in Erie County.
 
